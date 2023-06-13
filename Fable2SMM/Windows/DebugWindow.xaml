@@ -1,0 +1,63 @@
+﻿<Window x:Class="Fable2SMM.DebugWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Fable2SMM"
+        mc:Ignorable="d"
+        Title="DebugWindow" MinHeight="400" MinWidth="400" Height="700" Width="1200">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Left File Preview Half -->
+            <Grid Grid.Row="0" Grid.Column="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="0" Grid.Column="0">
+                    <TextBox IsReadOnly="True" TextWrapping="Wrap" Text="{Binding Path=(local:ModManaging.CurrentInstalledModsContent)}"/>
+                </ScrollViewer>
+
+                <GridSplitter Grid.Row="1" Grid.Column="0" Height="5" Margin="5,0,5,0" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+                
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="2" Grid.Column="0">
+                    <TextBox IsReadOnly="True" TextWrapping="Wrap" Text="{Binding Path=(local:DirManifest.CurrentDirManifestContent)}"/>
+                </ScrollViewer>
+            </Grid>
+
+            <GridSplitter Grid.Row="0" Grid.Column="1" Width="5" Margin="5,0,5,0" HorizontalAlignment="Center"/>
+
+            <!-- Right Logging Half -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="0" Grid.Column="2">
+                <TextBox IsReadOnly="True" TextWrapping="Wrap" Text="{Binding Path=(local:DebugListener.ListenerLog), Mode=OneWay}"/>
+            </ScrollViewer>
+            
+        </Grid>
+    </Grid>
+</Window>

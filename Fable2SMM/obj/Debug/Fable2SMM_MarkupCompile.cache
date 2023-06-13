@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-C:\Users\Just Some Guy\source\repos\Fable2SMM\obj\Debug\
+G:\Github Repositories\Archons-Toolbox\Fable2SMM\obj\Debug\
 Fable2SMM
 none
 false
 DEBUG;TRACE
-C:\Users\Just Some Guy\source\repos\Fable2SMM\App.xaml
-21360784759
+G:\Github Repositories\Archons-Toolbox\Fable2SMM\Windows\App.xaml
+7-834138069
 
-91829187504
-13-1505183044
-MainWindow.xaml;Settings.xaml;
+27-679357322
+31-230275245
+Windows\DebugWindow.xaml;Windows\HelpWindow.xaml;Windows\InstallWindow.xaml;Windows\InteropTesting.xaml;Windows\MainWindow.xaml;Windows\PatchGeneration.xaml;Windows\Settings.xaml;
 
 False
 

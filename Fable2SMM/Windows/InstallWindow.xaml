@@ -1,0 +1,100 @@
+﻿<Window x:Class="Fable2SMM.InstallWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Fable2SMM"
+        mc:Ignorable="d" MinHeight="500" MinWidth="400"
+        Title="InstallWindow" Height="500" Width="700" Background="{Binding Path=(local:AppSettings.StaticBackgroundColour), Converter={StaticResource WhiteColourConverter}}">
+    <Window.CommandBindings>
+        <CommandBinding Command="local:InstallWindow.InstallRunnerCmd" Executed="InstallRunnerCmdExecuted"/>
+        <CommandBinding Command="local:InstallWindow.InstallGUICmd" Executed="InstallGUICmdExecuted"/>
+        <CommandBinding Command="local:InstallWindow.UninstallManagerCmd" Executed="UninstallManagerCmdExecuted" CanExecute="UninstallManagerCmdCanExecute"/>
+        <CommandBinding Command="local:InstallWindow.UpdateRunnerCmd" Executed="UpdateRunnerCmdExecuted" CanExecute="UpdateRunnerCmdCanExecute"/>
+    </Window.CommandBindings>
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Path to game -->
+        <Border Grid.Row="0" Margin="0,0,0,40" BorderThickness="3" BorderBrush="{Binding Path=(local:AppSettings.StaticTextColour), Converter={StaticResource WhiteColourConverter}}" Padding="5,0,5,5">
+            <StackPanel>
+                <TextBlock Text="Game Path" Style="{StaticResource TitleTextStyle}" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                <TextBox HorizontalScrollBarVisibility="Auto" Text="{Binding Path=(local:ManagerInstallation.GameFolder)}" Background="White" Foreground="Black"/>
+                <Button x:Name="ChooseFolderButton" Content="Choose Folder" Click="ChooseFolderButton_Click"/>
+            </StackPanel>
+        </Border>
+
+
+        <!-- Button & Button Description Grid -->
+
+        <Border Grid.Row="1" Margin="0,0,0,5" BorderThickness="3" BorderBrush="{Binding Path=(local:AppSettings.StaticTextColour), Converter={StaticResource WhiteColourConverter}}" Padding="10">
+            <Grid Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Button Descriptions -->
+                <StackPanel Grid.Row="0">
+                    <TextBlock Text="When the manager is installed it does the following:" Padding="0,0,0,5"/>
+                    <!-- Bulletpoint List -->
+                    <ListView Focusable="False" ItemTemplate="{DynamicResource ResourceKey=BulletPoint}">
+                        <Run Text="The Mods folder is created in the game's scripts folder"/>
+                        <Run Text="The runner's scripts are extracted to a new &quot;ModManager&quot; folder"/>
+                        <Run>
+                            Gamescripts_r.bnk is patched to initiate the "runner" scripts and a backup is made
+                        </Run>
+
+                        <ListView.ItemContainerStyle>
+                            <!-- Remove default ListView properties. I should probably just use a contentpresenter instead -->
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Focusable" Value="False"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.Resources>
+                            <!-- Bullet Point item-->
+                            <DataTemplate x:Key="BulletPoint">
+                                <BulletDecorator>
+                                    <BulletDecorator.Bullet>
+                                        <Ellipse StrokeThickness="8" Stroke="{Binding Path=(local:AppSettings.StaticTextColour), Converter={StaticResource WhiteColourConverter}}" Margin="0,1,0,0"/>
+                                    </BulletDecorator.Bullet>
+                                    <BulletDecorator.Child>
+                                        <TextBlock Text="{Binding Path=Text}" Margin="5,0,0,0"/>
+                                    </BulletDecorator.Child>
+                                </BulletDecorator>
+                            </DataTemplate>
+                        </ListView.Resources>
+                    </ListView>
+
+                    <TextBlock Text="Updating the runner copies the runner scripts from the manager over to the game installation." Margin="0,15,0,0"/>
+                    <TextBlock Text="Uninstalling restores gamescripts_r and deletes all mod related folders from the installation." Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <!-- Button Grid -->
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <Button Grid.Row="0" Grid.Column="0" Content="Install Manager" HorizontalAlignment="Left" Command="local:InstallWindow.InstallRunnerCmd"/>
+                    <Button Grid.Row="0" Grid.Column="2" Content="Update Runner" HorizontalAlignment="Center" Command="local:InstallWindow.UpdateRunnerCmd"/>
+                    <Button Grid.Row="0" Grid.Column="4" Content="Remove Manager" HorizontalAlignment="Right"  Command="local:InstallWindow.UninstallManagerCmd"/>
+                </Grid>
+                <Button Grid.Row="2" Content="(Authors Only) Patch GUI" Command="local:InstallWindow.InstallGUICmd"
+                    HorizontalContentAlignment="Center" HorizontalAlignment="Center"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

@@ -1,0 +1,14 @@
+scripts\Mod Manager\init.lua
+scripts\Mod Manager\installedmods.lua
+scripts\Mod Manager\modhooks.lua
+scripts\Mod Manager\modmetatable.lua
+scripts\Mod Manager\modmisc.lua
+scripts\Mod Manager\Patching
+scripts\Mod Manager\runner.lua
+scripts\Mod Manager\startrunner.lua
+scripts\Mod Manager\weaponinventory_override.lua
+scripts\Mod Manager\GUI\GUIHook.lua
+scripts\Mod Manager\GUI\GUIManagerScripts.zip
+scripts\Mod Manager\GUI\MyGUICode.lua
+scripts\Mod Manager\Patching\DeltaPatchApplicator.lua
+scripts\Mod Manager\Patching\DeltaPatchIngame.lua

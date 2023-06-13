@@ -1,0 +1,58 @@
+﻿<Application x:Class="Fable2SMM.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Fable2SMM"
+             xmlns:conv="clr-namespace:Fable2SMM.MyConverters"
+             xmlns:System ="clr-namespace:System;assembly=mscorlib"
+             xmlns:help ="clr-namespace:Fable2SMM.HelpSystem"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <!--<Style x:Key="DefaultTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+        </Style>-->
+
+        <conv:FontSizeConverter x:Key="FontSizeConverter"/>
+        <conv:WhiteColourConverter x:Key="WhiteColourConverter"/>
+
+
+        <Style TargetType="TextBlock">
+            <!-- TODO: Make this not cause a stackoverflow if mode is not onetime. Probably needs refactoring (out of the setter?) -->
+            <Setter Property="FontSize" Value="{Binding RelativeSource={RelativeSource Self}, Path=FontSize, Mode=OneTime, Converter={StaticResource FontSizeConverter}}"/>
+            <Setter Property="Foreground" Value="{Binding Path=(local:AppSettings.StaticTextColour), Converter={StaticResource WhiteColourConverter}}"/>
+        </Style>
+        <Style x:Key="TitleTextStyle" BasedOn="{StaticResource {x:Type TextBlock}}" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="20"/>
+        </Style>
+        <Style TargetType="{x:Type TextBox}">
+            <!-- TODO: Make this not cause a stackoverflow if mode is not onetime. Probably needs refactoring (out of the setter?) -->
+            <Setter Property="FontSize" Value="{Binding RelativeSource={RelativeSource Self}, Path=FontSize, Mode=OneTime, Converter={StaticResource FontSizeConverter}}"/>
+            <Setter Property="Foreground" Value="{Binding Path=(local:AppSettings.StaticTextColour), Converter={StaticResource WhiteColourConverter}}"/>
+            <Setter Property="Background" Value="{Binding Path=(local:AppSettings.StaticBackgroundColour), Converter={StaticResource WhiteColourConverter}}"/>
+        </Style>
+        
+        <Style TargetType="{x:Type ListBox}">
+            <Setter Property="Background" Value="{Binding Path=(local:AppSettings.StaticBackgroundColour), Converter={StaticResource WhiteColourConverter}}"/>
+            <Setter Property="Foreground" Value="{Binding Path=(local:AppSettings.StaticTextColour), Converter={StaticResource WhiteColourConverter}}"/>
+        </Style>
+        <Style TargetType="{x:Type ListView}">
+            <Setter Property="Background" Value="{Binding Path=(local:AppSettings.StaticBackgroundColour), Converter={StaticResource WhiteColourConverter}}"/>
+            <Setter Property="Foreground" Value="{Binding Path=(local:AppSettings.StaticTextColour), Converter={StaticResource WhiteColourConverter}}"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="{Binding Path=(local:AppSettings.StaticBackgroundColour), Converter={StaticResource WhiteColourConverter}}"/>
+            <Setter Property="TextBlock.Foreground" Value="{Binding Path=(local:AppSettings.StaticTextColour), Converter={StaticResource WhiteColourConverter}}"/>
+        </Style>
+        <Style TargetType="Grid">
+            <Setter Property="Background" Value="{Binding Path=(local:AppSettings.StaticBackgroundColour),Converter={StaticResource WhiteColourConverter}}"/>
+        </Style>
+        <Style TargetType="local:MainWindow">
+            <Setter Property="Background" Value="{Binding Path=(local:AppSettings.StaticBackgroundColour), Converter={StaticResource WhiteColourConverter}}"/>
+        </Style>
+        <Style TargetType="ToolTip">
+            <Setter Property="Background" Value="{Binding Path=(local:AppSettings.StaticBackgroundColour), Converter={StaticResource WhiteColourConverter}}"/>
+            <Setter Property="Foreground" Value="{Binding Path=(local:AppSettings.StaticTextColour), Converter={StaticResource WhiteColourConverter}}"/>
+        </Style>
+
+
+    </Application.Resources>
+</Application>

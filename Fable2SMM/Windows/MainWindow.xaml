@@ -1,0 +1,271 @@
+﻿<Window x:Class="Fable2SMM.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Fable2SMM"
+        xmlns:System="clr-namespace:System;assembly=mscorlib"
+        mc:Ignorable="d" MinHeight="400" MinWidth="400"
+        Title="Archon's Toolbox - Fable II" Height="{Binding Path=(local:AppSettings.StaticMainWindowHeight), Mode=TwoWay}" Width="{Binding Path=(local:AppSettings.StaticMainWindowWidth), Mode=TwoWay}">
+
+    <Window.Resources>
+
+    </Window.Resources>
+    
+    <!--Main Grid-->
+    <Grid Margin="5,5,5,5">
+        <Grid.CommandBindings>
+            <CommandBinding Command="local:MainWindow.ManageCmd" Executed="ManagerCmdExecuted" CanExecute="ManageCmdCanExecute"/>
+            <CommandBinding Command="local:MainWindow.OpenHelpCmd" Executed="OpenHelpCmdExecuted"/>
+            <CommandBinding Command="local:MainWindow.OpenManagerInstallCmd" Executed="OpenManagerInstallCmdExecuted"/>
+        </Grid.CommandBindings>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/> <!-- Button Grid -->
+            <RowDefinition Height="5"/> <!-- Padding -->
+            <RowDefinition Height="*"/> <!-- Mod Management Grid -->
+        </Grid.RowDefinitions>
+
+        <!-- Top Bar Row (Status, Buttons) -->
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Grid.Row="0" Grid.Column="0">
+            <ScrollViewer.Resources>
+                <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                    <Setter Property="Margin" Value="2"/>
+                </Style>
+                <!-- Status Style -->
+                <Style x:Key="PatchStatus" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Path=(local:Gamescripts.CurrentGamescriptsStatus)}" Value="{x:Static local:GamescriptsStatus.ORIGINAL}">
+                            <Setter Property="Text" Value="Uninstalled"/> <Setter Property="Foreground" Value="Yellow"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Path=(local:Gamescripts.CurrentGamescriptsStatus)}" Value="{x:Static local:GamescriptsStatus.MANAGERINSTALLED}">
+                            <Setter Property="Text" Value="Installed"/> <Setter Property="Foreground" Value="MediumSeaGreen"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Path=(local:Gamescripts.CurrentGamescriptsStatus)}" Value="{x:Static local:GamescriptsStatus.MODIFIED}">
+                            <Setter Property="Text" Value="Unknown"/> <Setter Property="Foreground" Value="Orange"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Path=(local:Gamescripts.CurrentGamescriptsStatus)}" Value="{x:Static local:GamescriptsStatus.MISSING}">
+                            <Setter Property="Text" Value="Game File Missing"/> <Setter Property="Foreground" Value="Red"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ScrollViewer.Resources>
+            <DockPanel>
+                <!-- Status Textblocks -->
+                <StackPanel Margin="5,0,0,0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Padding="3,1,3,1"  BorderThickness="1" BorderBrush="{Binding Path=(local:AppSettings.StaticTextColour), Converter={StaticResource WhiteColourConverter}}">
+                        <TextBlock>
+                            <Run Text="Patch Status: "/>
+                            <TextBlock Style="{StaticResource PatchStatus}"/>
+                        </TextBlock>
+                    </Border>
+                </StackPanel>
+                <!-- Buttons -->
+                <DockPanel Margin="15,0,0,0">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                        <Button Content="Toggle Enabled" Command="local:MainWindow.ManageCmd" CommandParameter="invert" CommandTarget="{Binding ElementName=ModListView}"/>
+                        <Button Content="Install From Zip" Click="InstallZip_Click"/>
+                        <Button Content="Install From Folder" Click="InstallFolder_Click"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Help" Command="local:MainWindow.OpenHelpCmd"/>
+                        <Button Content="Manage Installation" Command="local:MainWindow.OpenManagerInstallCmd"/>
+                        <Button Content="Settings" Click="SettingsButton_Click" Background="DimGray">
+                            <!-- To stop the settings button from being effected by colour configs, we need to override the presentation -->
+                            <Button.ContentTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType=Button, Mode=FindAncestor}, Path=Content}" Foreground="#ffffff"/>
+                                </DataTemplate>
+                            </Button.ContentTemplate>
+                        </Button>
+                    </StackPanel>
+                </DockPanel>
+            </DockPanel>
+        </ScrollViewer>
+
+
+        <!-- Mod Management -->
+        <Grid Grid.Column="0" Grid.Row="2" Margin="0,0,0,0" AllowDrop="True" DragDrop.Drop="OnDragDrop">
+            <Grid.CommandBindings>
+                <CommandBinding Command="local:MainWindow.CopyAllCmd" Executed="CopyAllCmdExecuted" CanExecute="CopyAllCmdCanExecute"/>
+            </Grid.CommandBindings>
+            <Grid.Resources>
+                <Style x:Key="ModListItemStyle" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Path=Enabled}" Value="false">
+                            <Setter Property="TextBlock.Foreground" Value="DarkGray"/> <Setter Property="TextBlock.ToolTip" Value="Disabled"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Path=Enabled}" Value="true">
+                            <Setter Property="TextBlock.ToolTip" Value="Enabled"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Path=Installed}" Value="false">
+                            <Setter Property="TextBlock.Foreground" Value="Red"/>
+                            <Setter Property="TextBlock.ToolTip" Value="Uninstalled"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+                <DataTemplate x:Key="AuthorLink">
+                    <TextBlock>
+                        <Hyperlink Name="ThisHyperLink" NavigateUri="" Command="local:MainWindow.CopyAllCmd" CommandParameter="{Binding Mode=OneTime}">
+                            <TextBlock x:Name="LinkText" Text="{Binding Mode=OneTime}"/>
+                            <Popup IsOpen="{Binding ElementName=ThisHyperLink, Path=IsMouseOver, Mode=OneWay}" Placement="MousePoint" HorizontalOffset="15" AllowsTransparency="True">
+                                <TextBlock Text="URLs are copied on click" Background="#303030" TextBlock.Foreground="White"/>
+                            </Popup>
+                        </Hyperlink>
+                    </TextBlock>
+                </DataTemplate>
+                <DataTemplate x:Key="ModListItem">
+                    <Border BorderBrush="Transparent" BorderThickness="2" CornerRadius="3" Padding="2">
+                        <TextBlock Style="{StaticResource ResourceKey=ModListItemStyle}" Text="{Binding Path=NameID}">
+                            <TextBlock.RenderTransform>
+                                <TranslateTransform X="0" x:Name="none"/>
+                            </TextBlock.RenderTransform>
+                            <TextBlock.InputBindings>
+                                <MouseBinding MouseAction="LeftDoubleClick" Command="local:MainWindow.ManageCmd" CommandParameter="invert"/>
+                            </TextBlock.InputBindings>
+                        </TextBlock>
+                        <!-- Border Animation -->
+                        <Border.Style>
+                            <Style>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem, Mode=FindAncestor}, Path=IsSelected}" Value="True">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <ColorAnimation Storyboard.TargetProperty="BorderBrush.Color" From="#0000A0FF" To="#FF00A0FF" Duration="0:0:.15"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <ColorAnimation Storyboard.TargetProperty="BorderBrush.Color" From="#FF00A0FF" To="#0000A0FF" Duration="0:0:.08"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.ExitActions>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                    </Border>
+                </DataTemplate>
+                <DataTemplate x:Key="ModInfo">
+                    <!-- For some reason it seems fontsize multi is being applied multiple times? -->
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Main Section: Image + Description -->
+                            <StackPanel Grid.Row="0" Margin="0,0,0,15">
+                                <StackPanel.Resources>
+                                    <ResourceDictionary>
+                                        <BitmapImage x:Key="DefaultImage" UriSource="/InternalAssets/images/lua.png"/>
+                                    </ResourceDictionary>
+                                </StackPanel.Resources>
+
+                                <Image Stretch="None" MaxHeight="300" Source="{Binding Thumbnail, TargetNullValue={StaticResource ResourceKey=DefaultImage}}"/>
+
+                                <Rectangle Fill="Black" Width="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=Width}" Height="3" Margin="0,10,0,10"/>
+
+                                <TextBlock Text="{Binding Path=Description}" TextWrapping="Wrap"/>
+
+                            </StackPanel>
+
+                            <!-- Seperator + Author + Author Links -->
+                            <Separator Grid.Row="1"/>
+                            <StackPanel Grid.Row="2" Margin="30,10,0,20">
+                                <DockPanel>
+                                    <TextBlock>
+                                        <Run Text="Author: "/>
+                                    </TextBlock>
+                                    <TextBlock TextWrapping="Wrap" FontWeight="Light" Text="{Binding Path=Author}"/>
+                                </DockPanel>
+                                <ItemsControl ItemsSource="{Binding Path=AuthorURLs}" ItemTemplate="{StaticResource ResourceKey=AuthorLink}"/>
+                            </StackPanel>
+
+                            <!-- Debug Section -->
+                            <!--<ListBox Grid.Row="3">
+                                <TextBlock Text="{Binding Path=NameID}"/>
+                                <CheckBox IsChecked="{Binding Path=Installed}"/>
+                                <CheckBox Name="IsEnabledCheckbox" IsEnabled="{Binding Path=Installed}" IsChecked="{Binding Path=Enabled, Mode=TwoWay}"/>
+                                <TextBlock Text="{Binding Path=IsFromInstalledMods}"/>
+                            </ListBox>-->
+                        </Grid>
+                        <ScrollViewer.Resources>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}"/>
+                        </ScrollViewer.Resources>
+                    </ScrollViewer>
+                </DataTemplate>
+            </Grid.Resources>
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+    
+            <!-- Mod list on the left -->
+            <TextBlock Grid.Column="0" Grid.Row="0" Style="{StaticResource ResourceKey=TitleTextStyle}" Text="Mods:"/>
+            <ListView Grid.Column="0" Grid.Row="1" Name="ModListView" HorizontalContentAlignment="Stretch" MinWidth="150"
+                      ItemsSource="{Binding Path=(local:ModManaging.ModList)}" IsSynchronizedWithCurrentItem="True"
+                      ItemTemplate="{StaticResource ResourceKey=ModListItem}" VirtualizingPanel.IsVirtualizing="False" Opacity="1"
+                      ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Margin" Value="0"/>
+                        <Setter Property="Padding" Value="0,1,0,0"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.InputBindings>
+                    <KeyBinding Command="{x:Static local:MainWindow.ManageCmd}" CommandParameter="invert" Key="Space"/>
+                </ListView.InputBindings>
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Invert" Command="{x:Static local:MainWindow.ManageCmd}" CommandParameter="invert"/>
+                        <MenuItem Header="Enable" Command="{x:Static local:MainWindow.ManageCmd}" CommandParameter="enable"/>
+                        <MenuItem Header="Disable" Command="{x:Static local:MainWindow.ManageCmd}" CommandParameter="disable"/>
+                        <MenuItem Header="Install" Command="{x:Static local:MainWindow.ManageCmd}" CommandParameter="install"/>
+                        <MenuItem Header="Uninstall" Command="{x:Static local:MainWindow.ManageCmd}" CommandParameter="uninstall"/>
+                        <MenuItem Header="Delete" Command="{x:Static local:MainWindow.ManageCmd}" CommandParameter="delete"/>
+                        <MenuItem Header="Folder" Command="{x:Static local:MainWindow.ManageCmd}" CommandParameter="open folder"/>
+                        <MenuItem Header="(DEBUG)" Command="{x:Static local:MainWindow.ManageCmd}" CommandParameter="debug"/>
+                    </ContextMenu>
+                </ListView.ContextMenu>
+                <ListView.Triggers>
+                    <EventTrigger RoutedEvent="ListView.SelectionChanged">
+                        <EventTrigger.Actions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="ModInfoControl" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:.4"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger.Actions>
+                    </EventTrigger>
+                </ListView.Triggers>
+            </ListView>
+            <!-- Mod Info On Right -->
+            <Border BorderBrush="White" BorderThickness="3" Padding="5,5,5,0" Opacity="1" Grid.Column="1" Grid.Row="1">
+                <ContentControl x:Name="ModInfoControl" Content="{Binding Path=(local:ModManaging.ModList)}" ContentTemplate="{StaticResource ResourceKey=ModInfo}" Opacity="1"/>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

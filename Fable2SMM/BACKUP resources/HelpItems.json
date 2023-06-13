@@ -1,0 +1,21 @@
+[
+	{
+	"Title" : "Deleting Mods (IMPORTANT)", 
+	"Description" : "Mod scripts are baked into saves.\n\nThis means that deleting all of a mod's files may not necessarily delete the mod from your game. Well-behaved mods should shut down and clean up automatically, but this is not a guarantee.\n\nTo properly remove a mod, you should choose the uninstall option in the manager and load your save.\nMake sure everything works as expected, then save. You can now delete the mod's files.\n\nUpon a script being terminated, the game should continue as if the mod never existed, and the save should theoretically be rid of any references."
+	},
+
+	{
+	"Title" : "Setting Up", 
+	"Description" : "Before you can install mods, the manager must patch the game.\n\nGo into the Manage Installation menu, input the game path, and click install.\n\nYou can now install mods and they should start the next time you load the game."
+	},
+
+	{
+	"Title" : "Managing Mods", 
+	"Description" : "Red: Uninstalled\nGrey: Disabled\nWhite: Enabled\n\nEnabling/Disabling: Double click a mod to toggle between enabled and disabled.\n\nInstalling/Uninstalling: Click install/uninstall in the right click menu.\nWhen a mod is uninstalled, its files are still present but the game cannot use them. Well-behaved mods will be safely removed from your savefile.\n\nDeleting: Uninstalls a mod and deletes its files.\n\nShift or Ctrl clicking mods lets you manage multiple at the same time by using the right click menu."
+	},
+
+	{
+	"Title" : "Patch Status",
+	"Description" : "Patch Status indicates whether or not your game has been patched to load the manager.\nPatch Status is shown at the top left of the main window\n\nInstalled: Your game has been patched. The manager, and all enabled mods, should start when you load the game.\nUnknown: Your game is modified in a way that is unknown to the manager.\nUninstalled: Your game has not been patched. The manager and mods will not initialize on unmodded saves. Saves with the manager already installed will have undefined behaviour.\n\nStatus is determined by calculating the hash of the gamescripts_r.bnk file in /data/."
+	},
+]

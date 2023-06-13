@@ -1,0 +1,180 @@
+This guide will assume you have some experience with Lua, coroutines, function environments, metatables, etc. although an understanding of the last two aren't required.
+
+A Quick Manager Summary/Intro:
+	The Script Mod Manager provides a very easy way of getting your own Lua code running in the game, and in a format that's ideal for redistributing.
+	Mods are comprised of a single folder which contains a minimum of just two small files (see Mod Layout for more). 
+	To get the mod into a format ready for sharing just zip up the mod's folder.
+
+	I won't go into detail here but the manager has two components: The manager and the runner.
+	The manager is the GUI application that patches the game and handles mod files.
+	The runner is the internal game component that sets up, manages, and runs mods' Lua code.
+	I'll probably say manager when I mean runner but I don't think I really need to differentiate anyway.
+
+A Quick Mods Intro:
+	Your mods will have access to the entire ingame Lua state so you can do whatever you want.
+	Your mod's code will be run in a new function environment, so variables will be defined in your mods own table just like a module.
+	Your mod's environment will have its metatable set to the ModMetatable which will give it access to certain things like ModHooks and patching.
+
+	If your mod is not static (see Manifest Property: Static) you can define a function called Update() that will automatically be turned into a coroutine and resumed each tick.
+	If you need more than one coroutine, just make more and resume them from your main Update function.
+
+	You can define these functions that will be automatically called when your mod is being managed:
+	Enable, Disable, Uninstall.
+	The first two are called when your mod is enabled/disabled, and Uninstall is called after being uninstalled.
+
+	When Uninstall is called, you must do everything you can to restore the game to how it was before the mod was installed.
+	This means deleting any spawned NPCs, taking the hero out of Interaction Mode/Removing cutscene rules, restoring overwritten functions/values if possible, etc.
+	Your Update coroutine will not be resumed anymore after being uninstalled.
+
+	On a more positive note you can return data with your Uninstall function.
+	If your mod is being uninstalled the return value will be saved in a table containing uninstall data (with the key being the mods NameID), unless the player has chosen ClearData from the manager.
+	If your mod is being updated, the return value is passed to the new instance.
+		Imagine we have a mod that stores a new XP type and the mod is being updated. 
+		In Uninstall() we could return the amount of XP the player has earned, or a table containing many different values including the XP.
+		If your script is more elaborate and the position of a coroutine must be saved I recommend looking at how the game does stages in quests. 
+			The main loop encapsulates the entire function but only the code within the current Stage is run.
+			This would let you restart the coroutine from the same point based on the public Stage variable.
+
+
+Mod Folder Layout:
+	A mod is a folder containing at least two files. The first file is the modmanifest.json file, and the others are Lua scripts.
+	These files must be in a folder in the /Mods/ folder, with the folder name being identical to the NameID of the mod.
+	Read their Manifest Property sections for more.
+
+	modmanifest.json
+		The mod manifest contains information used by the manager to install the mod to the installedmods.lua file (read the technical section below for more).
+		Most importantly it contains the mods ID, starting script path, and version.
+
+		Manifest Property: NameID
+			This is the main internal identifier for your mod. It is vital that this is consistent with your Mods folder name.
+			If you change the NameID after the mod has already been installed, it will be seen as completely seperate mod in both the manager AND ingame.
+			I HIGHLY recommend that you just choose something unique and recognizable, as changing the NameID is a big hastle and a risk to your users' installs if your mod has already been released.
+
+		Manifest Property: StartScriptPath
+			The path to the Lua script that is called by the manager to initiate your script. It has its own environment, so you can define variables however you want.
+			It has access to a few things provided by the manager for extra functionality, like ModHooks.
+
+		Manifest Property: Static
+			This property is ideal for mods that can work purely off of hooks, and so do not need a constantly updating coroutine.
+			If your mod IS static then your script is run immediately after being installed and that is it. (during this time your mod should probably subscribe to a hook in ModHooks)
+			If your mod is NOT static, the manager will try to create a coroutine from the ModUpdate() function and resume it each tick.
+			This is ideal if your mod only needs to do something like overwrite a function in an NPC's behaviour base, or call a function when loading into a new area.
+			Have a look at the DogTeleporter mod that's included with the manager for an example of a static mod that makes use of ModHooks to react to realtime events.
+
+		Manifest Property: Files
+			The game has a file called dir.manifest which contains a path to all files that should be accessible from the ingame Lua state.
+			The manager will automatically read the Files list in your modmanifest and add them to the dir manifest when your mod is installed.
+			If a file is not in the dir manifest, it cannot be loaded.
+
+		Manifest Property: Version Major/Minor
+			These are used to track the versions of your mod. Surprise.
+			When you change either property in your modmanifest, the runner will detect this and terminate the old version when you load your save.
+			Read the updating section for updating instructions.
+
+			Currently both version variables are identical in functionality.
+				I plan(ned) on using the Major version to indicate compatibility with mods that require your mod.
+					E.g. if a mod required Version Major 2 of your mod and Version Major 2 was installed it would be provided (regardless of Version Minor), otherwise it wouldn't be provided to the requesting mod.
+				I might implement this later when I implement Mod Modules but I dunno.
+
+		Manifest Property: Other things
+			There may be other properties added in the future, so I guess I'll update this file when they're added.
+
+Mod Configuration Menu (MCM):
+	The MCM lets you add an ingame configuration menu for your mod which is accessable by pressing LB + X.
+	The MCM uses my MultipageMenu module which dynamically creates an admittedly janky but useful menu system.
+	There's no limit to the number of options you can have.
+	The buttons in your menu don't have to just configure something in your mod, they can call any function you want.
+
+	All of the MCM's functions can be accessed by indexing a table called MCM.
+
+	If you don't understand the following I'd recommend just looking at a mod that makes use of the MCM.
+
+	Here's a quick tutorial:
+
+		There's a function called MCM.OpenMenu which should be passed your menu's title a function that returns a table of buttons (more specifically a table of Action Entries).
+
+		An "action entry" is a table that describes a button. It is parsed by the menu system to create a button, and to call a function when the button is pressed.
+		To create an action entry, call this:
+			MCM.NewActionEntry("button text", enabled_bool, function_to_call_when_pressed, args_to_pass_to_function)
+				button text is shown as an option in the menu.
+				enabled_bool greys the option out if false
+				function_to_call is called when the user presses the button
+				args_to_pass_to_function is passed to function_to_call. 
+					If this is a table the options are unpacked and passed individually.
+					I guess if you need to pass a table, nest your table in another table.
+		Example:
+		{
+			MCM.NewActionEntry("Say Hello", true, GUI.DisplayMessageBox, "Hello World!"), 
+			MCM.NewActionEntry("Heal Player", true, Health.Modify, {QuestManager.HeroEntity, 10000}),
+		}
+
+		Despite your entries being in a table, this table definition must actually be enclosed in a function like so:
+		function GetMyMenuEntries() 
+			return { 
+				MCM.NewActionEntry("Say Hello", CanWeSayHelloRightNow(), GUI.DisplayMessageBox, "Hello World!"), 
+				...
+			}
+		end
+
+		This is because you can use functions to define things in your entries dynamically, like calling a function to determine enabled_bool.
+		If the entry table was simply defined when your script initially ran, the function that determined the button's availability would only be called there and then.
+		If the entry table was returned by a function, the table would be redefined every time the menu opens, allowing your entries' properties to be re-evaluated each time the menu is opened.
+
+		Now you would create a single entry that calls MCM.OpenMenu and passes GetMyMenuEntries() like so:
+			MyMcmOption = NewActionEntry("MyMod Config", true, MCM.OpenMenu, GetMyMenuEntries)
+
+		And finally we call MCM.AddOptionSet() which takes two args:
+			Your single ActionEntry that returns your menu entries
+			A key that correlates your action entries to your mod, letting you remove them later
+		E.g. MCM.AddOptionSet(MyMcmOption, "MyModOptions")
+
+		You should also remove your MCM options when your mod is Disable()'d with MCM.RemoveOptionSet.
+		Pass it the same key that you passed AddOptionSet.
+		E.g. MCM.RemoveOptionSet("MyModOptions")
+
+		If you want to open your menu through your script, you can just do this:
+			MCM.OpenMenu("My Menu Title", GetMyMenuEntries)
+		Be aware that this can only be called (directly or indirectly) from a coroutine as the function is yielding.
+
+ModMetatable:
+	ModHooks:
+		ModHooks.AddHook(hook_name, unique_id, callback_func, arg)
+			hook_name is the name of the hook (e.g. OnSaveLoad, OnEnterArea, OnHeroHit)
+			unique_id is an identifier used to add and remove your hook
+			callback_func is called when the hook is triggered
+			arg is passed to the callback_func
+		ModHooks.RemoveHook(hook_name, unique_id)
+			hook_name is the name of the hook (e.g. OnSaveLoad, OnEnterArea, OnHeroHit)
+			unique_id is an identifier used to add and remove your hook
+	ModMisc:
+		ModMisc.DisplayAllKeys(table_to_print, bool_should_print_values)
+			table_to_print is a table that will be split up into strings to print to the screen
+			bool_should_print_values is a bool that determines whether to print the value or key
+	Patching (TODO make sure this works still):
+		Patching.AddPatch(scriptpath, patchpath, modkey, overwrite)
+			scriptpath : Source script's path relative to /data/ excluding the bnk file e.g. scripts/quests/qc010_childhood.lua
+			patchpath : Patch file's path relative to /data/ e.g. scripts/Mods/childhoodmod/childhoodquest_patch.lua
+			modkey : A string that's used to identify which mod added the patch. Try to keep this the same for each patch your mod adds.
+			overwrite : If true, overwrite a pre-existing cached patch should there be one.
+		Patching.RemovePatch(scriptpath, modkey, force)
+			scriptpath : the script's path or filename to be un-patched. Try to keep this the same as whatever you gave AddPatch.
+			modkey : must be identical to the modkey given to AddPatch, unless force is true
+			force (NOT RECOMMENDED): if the modkey doesn't match but you must remove a patch, set as true. runs the risk of removing a different mod's patch.
+				This should ONLY be used if the user wants to unpatch the script regardless of which mod added it.
+
+
+
+
+Technical Stuff:
+	When the manager is installed, the WeaponInventory and GeneralScriptsManager scripts (in gamescripts_r.bnk) are patched to call the startrunner.lua script.
+		WeaponInventory is modified to start the runner when starting a new game.
+		GeneralScriptManager's LoadSaveTable() is modified to start the manager when loading a saved game if it's not already running. It also triggers the OnSaveLoad hook.
+
+	The runner is the in-game component of the manager. It is a standard lua script that manages the mods coroutines and tables. It resumes enabled mods each tick, triggers hooks, and so forth.
+	To communicate with the game/runner, the manager creates a file called installedmods.lua in data/scripts/Mod Manager/.
+		This file is read by the runner to see which mods are installed, enabled, disabled, etc.
+		It is essentially the only way the manager can "communicate" with the runner.
+		The manager writes to this file whenever a change is made, and the runner will read it the next time it checks mod installation status (e.g. on startup).
+		In the manager you can see installedmods in memory from the Debug Window and view how each action modifies it.
+
+	
