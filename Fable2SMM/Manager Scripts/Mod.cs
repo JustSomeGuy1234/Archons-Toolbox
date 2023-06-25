@@ -112,10 +112,10 @@ namespace Fable2SMM
 
             ModManaging.InstalledModsFileDict = newTable;
             ModManaging.CurrentInstalledModsContent = LuaParsing.ReplaceNextWordInString(ModManaging.CurrentInstalledModsContent, value.ToString().ToLower(), values[propertyPath]);
-            if (ModManaging.RealtimeSaving)
+            if (ModManaging.AutosaveSettings)
                 File.WriteAllText(InstalledModsPath, ModManaging.CurrentInstalledModsContent);
 
-            ModManaging.InstallIsDirty = true;
+            ModManaging.ModsAreDirty = true;
         }
 
         public static void InstallMod(Mod mod)
@@ -145,12 +145,16 @@ namespace Fable2SMM
             }
             string modTableString = ManifestParser.ConvertJsonManifestIntoTable(manifestContent);
 
-            ModManaging.CurrentInstalledModsContent = LuaParsing.AddTableToInstalledMods(ModManaging.CurrentInstalledModsContent, modTableString, NameID);
+            string newContent = LuaParsing.AddTableToInstalledMods(ModManaging.CurrentInstalledModsContent, modTableString, NameID);
+            if (string.IsNullOrEmpty(newContent))
+                return;
+
+            ModManaging.CurrentInstalledModsContent = newContent;
             Installed = true;
             IsFromInstalledMods = true;
             DirManifest.CurrentDirManifestContent = DirManifest.AddModFilesToDirManifest(this);
             ModManaging.ModList.Add(this);
-            ModManaging.InstallIsDirty = true;
+            ModManaging.ModsAreDirty = true;
         }
 
         /// <summary>
@@ -212,7 +216,7 @@ namespace Fable2SMM
             LuaParsing.ParseTable(ModManaging.CurrentInstalledModsContent, out installedModsDict); // Reassign the new installedmods dictionary containing the new mod version to the public property
             ModManaging.InstalledModsFileDict = installedModsDict;
 
-            ModManaging.InstallIsDirty = true;
+            ModManaging.ModsAreDirty = true;
         }
 
 
@@ -237,7 +241,8 @@ namespace Fable2SMM
             if (finalFolderPath == ManagerInstallation.ModsFolder)
             {
                 Trace.WriteLine("Tried to delete entire mods folder! ID of this mod must be invalid: " + NameID ?? "nullname");
-                MessageBox.Show("The mod has been removed from the manager, but an attempt to delete the mod's files has failed. You can delete them yourself at /Fable 2/Data/Scripts/Mods/*ModID*");
+                MessageBox.Show("The attempt to delete the mod's files has failed. You can delete them yourself at /Fable 2/Data/Scripts/Mods/*ModID*");
+                return;
             }
 
 
@@ -329,7 +334,7 @@ namespace Fable2SMM
                             ModManaging.CurrentInstalledModsContent = LuaParsing.AddTableToInstalledMods(ModManaging.CurrentInstalledModsContent, manifestAsTable, NameID);
                         }
                         else
-                            throw new Exception("Mod is not in installedmods file but is also not from manifest?\nThis would only happen if we retained a manifest from a zip/folder, OR if the user deleted the manifest at runtime.");
+                            throw new Exception("Mod is not in installedmods file but is also not from manifest?\nThis would only happen if we retained a manifest from a zip/folder, OR if the manifest was deleted at runtime.");
                     }
                 }
                 _installed = value;

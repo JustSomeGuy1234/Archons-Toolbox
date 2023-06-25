@@ -43,10 +43,10 @@ namespace Fable2SMM
             if (!AppSettings.StaticHasShownOOBE)
             {
                 MessageBoxResult result = MessageBox.Show(
-                    "It appears to be your first time using the manager.\n\nPLEASE read the \"Setting Up\" and the \"Deleting Mods\" sections in the help menu before continuing." +
-                    "\n\nWould you like to open it now?" +
-                    " If not, the help menu can be opened by click help at the top right.\nClicking cancel will show this box again on startup."
-                    , "Welcome"
+                    "It appears to be your first time using the Archon's Toolbox mod manager.\n\nPLEASE read the \"Setting Up\" and \"Deleting Mods\" sections in the help menu before continuing." +
+                    "\n\nWould you like to open the help menu now? You can also open it later by clicking help at the top right.\n\n" +
+                    "Clicking cancel will show this box again on startup."
+                    , "Welcome!"
                     , MessageBoxButton.YesNoCancel
                 );
                 if (result == MessageBoxResult.Yes)
@@ -119,7 +119,7 @@ namespace Fable2SMM
         protected override void OnClosing(CancelEventArgs e)
         {
             // TODO: isDirty should be set after comparing installedmods content, and also the dir manifest?
-            if (AppSettings.SettingsAreDirty || ModManaging.InstallIsDirty)
+            if (AppSettings.SettingsAreDirty || ModManaging.ModsAreDirty)
             {
                 var result = MessageBox.Show("Do you wish to save changes?", "Unsaved Changes", MessageBoxButton.YesNoCancel);
                 if (result == MessageBoxResult.Yes)

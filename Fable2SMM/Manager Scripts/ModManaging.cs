@@ -17,10 +17,19 @@ namespace Fable2SMM
 
     public static class ModManaging
     {
-        public static bool RealtimeSaving = false;
-        public static bool InstallIsDirty 
-            { get; 
-              set; }
+        public static bool AutosaveSettings = true;
+        public static bool ModsAreDirty 
+            { 
+            get => _modsAreDirty;
+            set {  
+                if (value && ModManaging.AutosaveSettings)
+                {
+                    ModManaging.SaveChanges();
+                    _modsAreDirty = false;
+                }
+            }
+        }
+        private static bool _modsAreDirty = false;
         
 
 
@@ -28,7 +37,19 @@ namespace Fable2SMM
         private static ObservableCollection<Mod> _modList = new ObservableCollection<Mod>();
         public static event EventHandler ModListChanged;
 
-        public static string CurrentInstalledModsContent { get { return _currentInstalledModsContent; } set { _currentInstalledModsContent = value; OnInstalledModsContentChanged(EventArgs.Empty); } }
+        public static string CurrentInstalledModsContent { 
+            get { return _currentInstalledModsContent; } 
+            set {
+                if (string.IsNullOrEmpty(value))
+                {
+                    Trace.TraceError("Tried to make CurrentInstalledModsContent empty!");
+                    return;
+                }
+                _currentInstalledModsContent = value; 
+                OnInstalledModsContentChanged(EventArgs.Empty);
+                ModManaging.ModsAreDirty = true;
+            }
+        }
         static string _currentInstalledModsContent = "";
         public static event EventHandler CurrentInstalledModsContentChanged;
         private static void OnInstalledModsContentChanged(EventArgs e)
@@ -40,6 +61,7 @@ namespace Fable2SMM
 
         public static void SaveChanges()
         {
+            Trace.WriteLine("Saving...");
             // TODO: Error handling
             if (File.Exists(Mod.InstalledModsPath))
                 File.WriteAllText(Mod.InstalledModsPath, ModManaging.CurrentInstalledModsContent);

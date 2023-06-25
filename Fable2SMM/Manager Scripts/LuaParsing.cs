@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Windows;
+using System.Diagnostics;
 
 namespace Fable2SMM
 {
@@ -446,6 +447,15 @@ namespace Fable2SMM
         }
         public static string AddTableToInstalledMods(string installedModsContents, string tableToAdd, string ModName)
         {
+            if (string.IsNullOrEmpty(installedModsContents))
+            {
+                string logerror = "AddTableToInstalledMods: installedModsContent is null or empty!";
+                string humanerror = "Failed to add mod to installedmods.lua - Check manager.log for more.\n\nThis may happen if you haven't installed the manager properly, or you've chosen the wrong game folder entirely.";
+                Trace.TraceError(logerror);
+                MessageBox.Show(humanerror, "Error", MessageBoxButton.OK, MessageBoxImage.Hand);
+                return "";
+            }
+
             (var valuePositions, var _) = ParseTable(installedModsContents, out Dictionary<string, object> _, new List<string>() { "installedmods", ModName });
             if (!valuePositions.ContainsKey("installedmods"))
                 throw new Exception("LuaParsing: Failed to find installedmods when adding table to it?");

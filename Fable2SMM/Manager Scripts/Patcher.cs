@@ -10,7 +10,7 @@ namespace Fable2SMM.Patching
 
         // By https://steamcommunity.com/id/NotJustSomeGuy/
         // https://github.com/JustSomeGuy1234/
-        // Just Some Guy#8131
+        // JustSomeGuy (Discord)
 
         // A Patcher I made a few years ago for fun. It's inefficient, badly written, doesn't support 4GiB+ files, and there's no compression, but I use it anyway.
         // Not very useful for actually updating applications, but instead to solve potential legal issues with redistributing entire game files.

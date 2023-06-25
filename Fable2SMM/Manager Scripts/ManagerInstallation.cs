@@ -42,7 +42,8 @@ namespace Fable2SMM
                     return;
                 }
 
-                if (ModManaging.InstallIsDirty)
+                // Mod Saving (installedmods)
+                if (ModManaging.ModsAreDirty)
                 {
                     MessageBoxResult result = MessageBox.Show("Would you like to save changes to the current installation before swapping?", "Save Changes?", MessageBoxButton.YesNoCancel);
                     if (result == MessageBoxResult.Yes)
@@ -50,11 +51,11 @@ namespace Fable2SMM
                     else if (result == MessageBoxResult.Cancel)
                         return;
                 }
+                ModManaging.ModsAreDirty = false;
+
 
                 _gameFolder = value; OnGameFolderChanged(); Trace.WriteLine("Changing GameFolder to " + value);
-                if (!AppSettings.StartingUp)
-                    AppSettings.SettingsAreDirty = true;
-                ModManaging.InstallIsDirty = false;
+                
 
                 if (File.Exists(Mod.InstalledModsPath))
                 {
@@ -81,6 +82,13 @@ namespace Fable2SMM
                     Gamescripts.UpdateGamescriptsStatus();
                 }
 
+                // Settings saving
+                if (!AppSettings.StartingUp)
+                {
+                    AppSettings.SettingsAreDirty = true;
+                    if (ModManaging.AutosaveSettings)
+                        ModManaging.SaveChanges();
+                }
 
                 AppSettings.StartingUp = false;
             }

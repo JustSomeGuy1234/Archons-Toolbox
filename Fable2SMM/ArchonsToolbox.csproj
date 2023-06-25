@@ -210,6 +210,13 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="resources\dir.forced.manifest" />
+    <None Include="resources\gamescripts_r 1.0 patch.bin" />
+    <None Include="resources\gamescripts_r 10.1 patch.bin" />
+    <None Include="resources\guiscripts.patch" />
+    <None Include="resources\HelpItems.json" />
+    <None Include="resources\Mod Manager Scripts.zip" />
+    <None Include="resources\settings.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -226,9 +233,12 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Resource Include="InternalAssets\images\lua.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\Authoring.txt" />
+    <Resource Include="resources\LICENSES.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
