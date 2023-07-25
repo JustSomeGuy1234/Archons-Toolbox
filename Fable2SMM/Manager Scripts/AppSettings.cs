@@ -53,6 +53,7 @@ namespace Fable2SMM
                 }
             } else
                 CreateNewSettingsFile();
+            AppSettings.StartingUp = false;
         }
 
         public static void CreateNewSettingsFile()
@@ -71,7 +72,7 @@ namespace Fable2SMM
             } catch(Exception e)
             {
 
-                string err = "Error while changing game path:\n" + e.Message;
+                string err = "Error while changing game path:\n" + e.Message + "\n" + e.StackTrace;
                 Trace.TraceError(err);
                 MessageBox.Show(err);
                 this.GamePath = "";

@@ -15,7 +15,9 @@ namespace Fable2SMM
     {
 
         public static Dictionary<string, object> CastObjectToTable(object obj)
-        { return (Dictionary<string, object>)obj; }
+        { 
+            return (Dictionary<string, object>) obj; 
+        }
 
         public static bool TryCastObjectToTable(object obj, out Dictionary<string, object> dict)
         {
@@ -277,9 +279,17 @@ namespace Fable2SMM
                     {
                         if (currentKeyPath == thisSearch)
                         {
-                            searchValuePositions.Add(currentKeyPath, baseIndex + i);
-                            searchKeyPositions.Add(currentKeyPath, baseIndex + keyPos);
-                            //Console.WriteLine($"RESULT: Found {thisSearch} at {baseIndex + i}");
+                            if (searchValuePositions.ContainsKey(currentKeyPath))
+                            {
+                                Trace.TraceError("Found the same key twice in one Lua table! Key: " + currentKeyPath);
+                                MessageBox.Show("An error has occured while handling a Lua table. Check the manager.log file for more. Things may not work as expected.");
+                            }
+                            else
+                            {
+                                searchValuePositions.Add(currentKeyPath, baseIndex + i);
+                                searchKeyPositions.Add(currentKeyPath, baseIndex + keyPos);
+                                //Console.WriteLine($"RESULT: Found {thisSearch} at {baseIndex + i}");
+                            }
                         }
                     }
                 }
@@ -332,7 +342,7 @@ namespace Fable2SMM
                 bool modWasConvertedToTable = LuaParsing.TryCastObjectToTable(installedmodsTable[ModKey], out Dictionary<string, object> modTable);
                 if (!modWasConvertedToTable)
                 {
-                    System.Diagnostics.Trace.WriteLine("A mod table was not able to be converted to dictionary! : " + ModKey);
+                    Trace.WriteLine("A mod table was not able to be converted to dictionary! : " + ModKey);
                     continue;
                 }
                 // Foreach property of the table

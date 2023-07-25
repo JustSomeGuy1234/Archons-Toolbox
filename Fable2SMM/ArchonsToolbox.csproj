@@ -242,6 +242,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /E /Y "$(SolutionDir)resources" "$(TargetDir)resources"</PostBuildEvent>
+    <PostBuildEvent>:: xcopy /E /Y "$(SolutionDir)resources" "$(TargetDir)resources"</PostBuildEvent>
   </PropertyGroup>
 </Project>

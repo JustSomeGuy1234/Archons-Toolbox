@@ -66,7 +66,7 @@ namespace Fable2SMM
                     // Manifest does not exist anymore, indicating that the mod files have been deleted, or the entry is invalid.
                     // It should be noted that the prompt to delete the mod is not here but in any place where mods are enumerated (EnumerateAllMods as of writing).
                     // TODO: Perhaps the prompt should be put into the mod parsing loop? Probably not, as there would be no flexibility for retaining deleted mod data.
-                    _isDeleted = true;
+                    IsDeleted = true;
                 }
                 Mod manMod = ManifestParser.ConvertManifestToMod(manText);
                 if (manMod != null)
@@ -81,7 +81,7 @@ namespace Fable2SMM
                         _files = manMod.Files;
                 }
                 else
-                    Trace.WriteLine("Mod ctr: A mod is being created without a manifest");
+                    Trace.TraceError("Mod ctr: A mod is being created without a manifest");
             }
 
             if (_files.Count == 0)
@@ -112,15 +112,14 @@ namespace Fable2SMM
 
             ModManaging.InstalledModsFileDict = newTable;
             ModManaging.CurrentInstalledModsContent = LuaParsing.ReplaceNextWordInString(ModManaging.CurrentInstalledModsContent, value.ToString().ToLower(), values[propertyPath]);
-            if (ModManaging.AutosaveSettings)
-                File.WriteAllText(InstalledModsPath, ModManaging.CurrentInstalledModsContent);
 
-            ModManaging.ModsAreDirty = true;
+            //Setting CurrentInstalledModsContent sets ModsAreDirty
+            //ModManaging.ModsAreDirty = true;
         }
 
         public static void InstallMod(Mod mod)
         {
-            throw new NotImplementedException("Consider using the InstallModIntoInstalledModsAndAddToList method instead");
+            throw new NotImplementedException("Use the InstallModIntoInstalledModsAndAddToList method instead. Installing a mod requires a ModManifest.");
         }
 
         /// <summary>
@@ -195,8 +194,10 @@ namespace Fable2SMM
             if (foundKeyOffsets.Count <= 0)
                 throw new Exception("Failed to find Mod " + NameID + " in installedmods to remove for updating!");
 
-            // Remove old mod files and add new ones
+            // TODO: This is stupid. We should simply replace (this) Mod in the ModList with the newMod.
+            // Update mod info
             {
+                // Files
                 Mod newMod = ManifestParser.ConvertManifestToMod(newManifest);
                 var newModfiles = newMod.Files;
                 var redundantFiles = new List<string>();
@@ -207,7 +208,14 @@ namespace Fable2SMM
                 DirManifest.CurrentDirManifestContent = DirManifest.RemoveFilesFromDirManifest(redundantFiles, DirManifest.CurrentDirManifestContent);
                 DirManifest.CurrentDirManifestContent = DirManifest.AddModFilesToDirManifest(newMod);
                 Files = newModfiles;
+
+                // Obtain new info (description, author etc.)
+                Author = newMod.Author;
+                Description = newMod.Description;
+                AuthorURLs = newMod.AuthorURLs;
             }
+
+            
 
             // Remove old mod table and insert the new one
             ModManaging.CurrentInstalledModsContent = LuaParsing.RemoveNextTableInString(ModManaging.CurrentInstalledModsContent, foundKeyOffsets[modPath]);

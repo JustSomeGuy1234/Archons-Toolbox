@@ -70,8 +70,10 @@ namespace Fable2SMM
                     if (fp.EndsWith(".zip"))
                     {
                         if (ModManaging.InstallModFromZip(fp) == null)
+                        {
                             MessageBox.Show("Failed to install mod from zip file. Check manager.log for more.", "Error", MessageBoxButton.OK, MessageBoxImage.Hand);
-                            /*MessageBox.Show($"No {ManifestParser.ModManifestFilename} file in mod folder at {manpath}!", "Missing File", MessageBoxButton.OK, MessageBoxImage.Hand);*/
+                            Trace.TraceError($"No {ManifestParser.ModManifestFilename} file in mod folder at {fp}!");
+                        }
                     }
                     else
                         MessageBox.Show("File does not end with .zip: " + fp);
@@ -90,9 +92,10 @@ namespace Fable2SMM
         private void InstallZip_Click(object sender, RoutedEventArgs e)
         {
             var dialogue = new Microsoft.Win32.OpenFileDialog
-            { 
+            {
                 Filter = "Zip Archive|*.zip|All|*.*",
-                Multiselect = true
+                Multiselect = true,
+                InitialDirectory = Path.GetFullPath(@".\sample mods\")
             };
             if (dialogue.ShowDialog() == true)
             {
@@ -121,7 +124,7 @@ namespace Fable2SMM
             // TODO: isDirty should be set after comparing installedmods content, and also the dir manifest?
             if (AppSettings.SettingsAreDirty || ModManaging.ModsAreDirty)
             {
-                var result = MessageBox.Show("Do you wish to save changes?", "Unsaved Changes", MessageBoxButton.YesNoCancel);
+                var result = ( ModManaging.AutosaveSettings ? MessageBoxResult.Yes : MessageBox.Show("Do you wish to save changes?", "Unsaved Changes", MessageBoxButton.YesNoCancel) );
                 if (result == MessageBoxResult.Yes)
                     ModManaging.SaveChanges();
                 else if (result == MessageBoxResult.Cancel)

@@ -145,13 +145,13 @@ namespace Fable2SMM
             string modKey = "error_noname";
             string unhandledValue = "";
             // Things we don't want putting into the table
-            string[] skipStrings = { "authorurls", "files", "description" };
+            string[] skippedValues = { "authorurls", "files", "description", "enabled", "installed", "cleardata" };
 
             // Todo: Clean up indentation.
 
             foreach (JsonProperty property in element.EnumerateObject())
             {
-                if(skipStrings.Any(x => x == property.Name.ToLower()))
+                if(skippedValues.Any(x => x == property.Name.ToLower()))
                     continue;
                 else if (property.Value.ValueKind == JsonValueKind.Object)
                 {
@@ -172,6 +172,8 @@ namespace Fable2SMM
                     tableContent += $"{property.Name} = \"{property.Value.GetString().Replace("\n", "\\n")}\",\n"; // Eek. GetString replaces "\n" with an actual \n.
                 else if (property.Value.ValueKind == JsonValueKind.Number)
                     tableContent += $"{property.Name} = {property.Value.GetDouble()},\n";
+                else if (property.Value.ValueKind == JsonValueKind.True || property.Value.ValueKind == JsonValueKind.False)
+                    tableContent += $"{property.Name} = {property.Value.GetBoolean().ToString().ToLower()},\n";
                 else
                     unhandledValue = property.Name;
 

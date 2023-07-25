@@ -90,7 +90,6 @@ namespace Fable2SMM
                         ModManaging.SaveChanges();
                 }
 
-                AppSettings.StartingUp = false;
             }
         }
         static string _gameFolder = "";

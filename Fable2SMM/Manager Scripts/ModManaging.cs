@@ -22,7 +22,7 @@ namespace Fable2SMM
             { 
             get => _modsAreDirty;
             set {  
-                if (value && ModManaging.AutosaveSettings)
+                if (value && !AppSettings.StartingUp && ModManaging.AutosaveSettings)
                 {
                     ModManaging.SaveChanges();
                     _modsAreDirty = false;
@@ -256,6 +256,7 @@ namespace Fable2SMM
             WriteFilesToModFolders(zipFilesDict);
             if (LuaParsing.IsModInInstalledMods(zipMod.NameID))
             {
+                // TODO: Crashes if a mod was previously installed and isn't removed from InstalledMods.lua, but is then re-installed.
                 Mod existingMod = ModList.First(x => x.NameID == zipMod.NameID);
                 if (existingMod == null)
                     throw new NullReferenceException("Mod is already in InstalledMods but can't be found in the ModList to update???\nI think I did something stupid here so this error may be made in error.");
