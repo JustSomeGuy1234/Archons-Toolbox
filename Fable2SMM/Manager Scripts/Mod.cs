@@ -346,7 +346,6 @@ namespace Fable2SMM
                     }
                 }
                 _installed = value;
-                SetModBool(value);
                 if (value)
                 {
                     DirManifest.CurrentDirManifestContent = DirManifest.AddModFilesToDirManifest(this);
@@ -356,6 +355,9 @@ namespace Fable2SMM
                     Enabled = false;
                     DirManifest.CurrentDirManifestContent = DirManifest.RemoveModFilesFromDirManifest(this);
                 }
+
+                // Call this last as it causes an autosave. Calling it before DirManifest change would cause it to be lost.
+                SetModBool(value);
                 OnPropertyChanged();
             }
         }
