@@ -1,2 +1,2 @@
 # Archon's Toolbox
-A Mod Manager for Fable 2 Script Mods
+A Mod Manager and Framework for Fable 2 Lua Script Mods!
