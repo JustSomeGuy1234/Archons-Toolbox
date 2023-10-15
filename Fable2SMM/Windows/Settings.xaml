@@ -1,9 +1,9 @@
-﻿<Window x:Class="Fable2SMM.SettingsWindow"
+﻿<Window x:Class="ArchonsToolbox.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Fable2SMM"
+        xmlns:local="clr-namespace:ArchonsToolbox"
         mc:Ignorable="d"
         Background="Gray" MinHeight="300" MinWidth="450"
         Title="Mod Manager Settings" Height="600" Width="450">

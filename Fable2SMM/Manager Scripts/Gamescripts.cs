@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Fable2SMM
+namespace ArchonsToolbox
 {
     public class Gamescripts
     {

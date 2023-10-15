@@ -9,7 +9,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Windows;
 
-namespace Fable2SMM.HelpSystem
+namespace ArchonsToolbox.HelpSystem
 {
     public static class HelpManager
     {

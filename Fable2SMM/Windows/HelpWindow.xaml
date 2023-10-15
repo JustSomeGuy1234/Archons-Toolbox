@@ -1,10 +1,10 @@
-﻿<Window x:Class="Fable2SMM.HelpSystem.HelpWindow"
+﻿<Window x:Class="ArchonsToolbox.HelpSystem.HelpWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Fable2SMM.HelpSystem"
-        xmlns:main="clr-namespace:Fable2SMM"
+        xmlns:local="clr-namespace:ArchonsToolbox.HelpSystem"
+        xmlns:main="clr-namespace:ArchonsToolbox"
         mc:Ignorable="d"
         Title="HelpWindow" Height="450" Width="800"
         Background="{Binding Path=(main:AppSettings.StaticBackgroundColour), Converter={StaticResource WhiteColourConverter}}">

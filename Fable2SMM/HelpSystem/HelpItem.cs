@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json;
 
-namespace Fable2SMM.HelpSystem
+namespace ArchonsToolbox.HelpSystem
 {
     public class HelpItem // : INotifyPropertyChanged
     {

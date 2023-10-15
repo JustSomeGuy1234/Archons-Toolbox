@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
-namespace Fable2SMM
+namespace ArchonsToolbox
 {
 
 
@@ -100,8 +100,9 @@ namespace Fable2SMM
         // Should be called by the setter
         public void SetModBool(bool value, [CallerMemberName] string property = "")
         {
+            // Find property value offset in InstalledMods string
             string propertyPath = $"installedmods.{this.NameID}.{property}";
-            (var values, var _) = LuaParsing.ParseTable(ModManaging.CurrentInstalledModsContent, out Dictionary<string, object> newTable, new List<string> { propertyPath });
+            (var values, _) = LuaParsing.ParseTable(ModManaging.CurrentInstalledModsContent, out Dictionary<string, object> newTable, new List<string> { propertyPath });
             if (!values.ContainsKey(propertyPath))
             {
                 MessageBox.Show($"Couldn't modify {property ?? "nullproperty"} on mod {NameID ?? "nullmodname"}.\n\nThis error may happen if the mod is not installed by the manager properly.", "Error", MessageBoxButton.OK, MessageBoxImage.Hand);
@@ -110,8 +111,10 @@ namespace Fable2SMM
                 return;
             }
 
-            ModManaging.InstalledModsFileDict = newTable;
+            // Replace next value at offset we found earlier in InstalledMods
             ModManaging.CurrentInstalledModsContent = LuaParsing.ReplaceNextWordInString(ModManaging.CurrentInstalledModsContent, value.ToString().ToLower(), values[propertyPath]);
+            LuaParsing.ModifyValueInDict(newTable, propertyPath, value);
+            ModManaging.InstalledModsFileDict = newTable;
 
             //Setting CurrentInstalledModsContent sets ModsAreDirty
             //ModManaging.ModsAreDirty = true;
@@ -368,12 +371,12 @@ namespace Fable2SMM
             get { return _enabled; }
             set
             {
-                bool isInInstalledMods = LuaParsing.IsModInInstalledMods(NameID);
                 if (value && !Installed)
                     Installed = true;
-                _enabled = value;
+                bool isInInstalledMods = LuaParsing.IsModInInstalledMods(NameID);
                 if (isInInstalledMods)
                     SetModBool(value);
+                _enabled = value;
                 OnPropertyChanged();
             }
         }

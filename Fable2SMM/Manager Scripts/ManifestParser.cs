@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Windows;
 
-namespace Fable2SMM
+namespace ArchonsToolbox
 {
     static class ManifestParser
     {

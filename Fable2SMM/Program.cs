@@ -15,7 +15,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.IO.Compression;
 
-namespace Fable2SMM
+namespace ArchonsToolbox
 {
 
     /* This class was meant to be so you could add a list of operations and then do them all at once without having to re-parse the table after each modification, but just parsing the table every time a value changes is fine really.

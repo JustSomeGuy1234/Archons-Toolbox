@@ -8,7 +8,7 @@ using System.IO;
 using System.Windows;
 using System.Diagnostics;
 
-namespace Fable2SMM
+namespace ArchonsToolbox
 {
 
     class LuaParsing
@@ -103,10 +103,11 @@ namespace Fable2SMM
             return (nextString, foundstring.Index, stringEnd);
         }
 
-        public static string ReadInstalledModsIntoContentAndDict()
+        public static string ReadInstalledMods()
         {
             if (!File.Exists(Mod.InstalledModsPath))
                 return string.Empty; // TODO: A neat way to show a messagebox and return?
+
             string installedModsContent = File.ReadAllText(Mod.InstalledModsPath);
             ModManaging.CurrentInstalledModsContent = installedModsContent;
             ParseTable(installedModsContent, out var installedModsDict);
@@ -303,13 +304,14 @@ namespace Fable2SMM
         {
             string[] pathSegments = valuePath.Split('.');
             Dictionary<string, object> curTable = table;
-            foreach (string nextTableName in pathSegments)
+            for (int i = 0; i < pathSegments.Length; i++)
             {
+                string nextTableName = pathSegments[i];
                 if (!curTable.ContainsKey(nextTableName))
                 {
                     throw new Exception($"LuaParsing: {nextTableName} does not exist in table {curTable}.");
                 }
-                if (nextTableName == pathSegments[pathSegments.Length - 1])
+                if (i == pathSegments.Length-1 && nextTableName == pathSegments[pathSegments.Length - 1])
                 {
                     return curTable[nextTableName];
                 }
@@ -317,6 +319,26 @@ namespace Fable2SMM
                     curTable = CastObjectToTable(curTable[nextTableName]);
             }
             return null;
+        }
+        public static void ModifyValueInDict(Dictionary<string, object> table, string valuePath, object value)
+        {
+            string[] pathSegments = valuePath.Split('.');
+            Dictionary<string, object> curTable = table;
+
+            for (int i = 0; i < pathSegments.Length; i++)
+            {
+                string nextTableName = pathSegments[i];
+                if (!curTable.ContainsKey(nextTableName))
+                    throw new Exception($"LuaParsing: {nextTableName} does not exist in table {curTable}.");
+                if (i == pathSegments.Length - 1)
+                {
+                    curTable.Remove(nextTableName);
+                    curTable.Add(nextTableName, value);
+                }
+                else
+                    curTable = CastObjectToTable(curTable[nextTableName]);
+
+            }
         }
 
         /// <summary>Parses a given Dict (table) as if each key/value was a mod from the installedmods table.</summary>

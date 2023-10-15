@@ -1,9 +1,9 @@
-﻿<Window x:Class="Fable2SMM.MainWindow"
+﻿<Window x:Class="ArchonsToolbox.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Fable2SMM"
+        xmlns:local="clr-namespace:ArchonsToolbox"
         xmlns:System="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d" MinHeight="400" MinWidth="400"
         Title="Archon's Toolbox - Fable II" Height="{Binding Path=(local:AppSettings.StaticMainWindowHeight), Mode=TwoWay}" Width="{Binding Path=(local:AppSettings.StaticMainWindowWidth), Mode=TwoWay}">

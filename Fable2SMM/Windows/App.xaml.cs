@@ -8,7 +8,7 @@ using System.Windows;
 using System.IO;
 using System.Diagnostics;
 
-namespace Fable2SMM
+namespace ArchonsToolbox
 {
     /// <summary>
     /// Interaction logic for App.xaml

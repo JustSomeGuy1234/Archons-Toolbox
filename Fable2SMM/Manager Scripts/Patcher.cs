@@ -3,7 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Fable2SMM.Patching
+namespace ArchonsToolbox.Patching
 {
     class Patcher
     {

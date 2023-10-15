@@ -1,10 +1,10 @@
-﻿<Application x:Class="Fable2SMM.App"
+﻿<Application x:Class="ArchonsToolbox.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Fable2SMM"
-             xmlns:conv="clr-namespace:Fable2SMM.MyConverters"
+             xmlns:local="clr-namespace:ArchonsToolbox"
+             xmlns:conv="clr-namespace:ArchonsToolbox.MyConverters"
              xmlns:System ="clr-namespace:System;assembly=mscorlib"
-             xmlns:help ="clr-namespace:Fable2SMM.HelpSystem"
+             xmlns:help ="clr-namespace:ArchonsToolbox.HelpSystem"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <!--<Style x:Key="DefaultTextStyle" TargetType="TextBlock">

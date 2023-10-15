@@ -13,7 +13,7 @@ using System.Text.Json.Serialization;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace Fable2SMM
+namespace ArchonsToolbox
 {
     class AppSettings
     {

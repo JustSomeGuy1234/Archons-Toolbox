@@ -5,8 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Diagnostics;
+using System.Windows;
 
-namespace Fable2SMM
+namespace ArchonsToolbox
 {
     class DirManifest
     {
@@ -14,7 +15,7 @@ namespace Fable2SMM
         public static string DirManifestBackupPath { get { return DirManifestPath + ".bak"; } }
         public static string DirManifestForcedPath { get { return ManagerInstallation.DataFolder + @"\dir.forced.manifest"; } }
 
-        public const string DirManifestForcedResourcePath = ManagerInstallation.ResourcesFolder + "/dir.forced.manifest";
+        public const string DirManifestForcedResourcePath = ManagerInstallation.ResourcesFolder + @"\dir.forced.manifest";
 
         public static string CurrentDirManifestContent { get { return _currentDirManifestContent; } set { _currentDirManifestContent = value; OnCurrentDirManifestContentChanged(EventArgs.Empty); } }
         static string _currentDirManifestContent = "";
@@ -66,10 +67,12 @@ namespace Fable2SMM
             newDirManifestLines = newDirManifestLines.Concat(newFilesLines).ToArray();
             return string.Join("\n", newDirManifestLines);
         }
+
         public static string AddModFilesToDirManifest(Mod mod)
         {
             return AddFilesToDirManifest(mod.Files);
         }
+
         public static void AddForcedFilesToDirManifest()
         {
             List<string> forcedfiles = File.ReadAllLines(DirManifestForcedPath).ToList();
@@ -80,6 +83,7 @@ namespace Fable2SMM
         {
             return RemoveFilesFromDirManifest(mod.Files, CurrentDirManifestContent);
         }
+
         public static string RemoveFilesFromDirManifest(List<string> filesToRemove, string manifestContent)
         {
             List<string> dirManifestLines = manifestContent.Split(
@@ -90,6 +94,7 @@ namespace Fable2SMM
             dirManifestLines.RemoveAll(x => filesToRemove.Contains(x));
             return string.Join("\n", dirManifestLines);
         }
+
         public static List<string> DirManifestDeltaFromFiles(string manifestPath, string backupPath)
         {
             List<string> manFiles = File.ReadAllLines(manifestPath).ToList();
@@ -98,18 +103,46 @@ namespace Fable2SMM
 
             return delta;
         }
+
+        /* DirManifest Backup & Resetting */
+
+        public static void BackupDirManifest()
+        {
+            if (VerifyDirManifestBackup(DirManifestBackupPath))
+                return;
+
+            if (File.Exists(DirManifestPath))
+            {
+                File.Copy(DirManifestPath, DirManifestBackupPath, true);
+            }
+            else
+            {
+                Trace.TraceInformation("Couldn't back up dir.manifest. Means we're on 1.0?");
+            }
+        }
+
         public static bool VerifyDirManifestBackup(string backupmanPath)
         {
             string currentBackupHash = Gamescripts.GetFileHash(backupmanPath);
             return currentBackupHash == v10dirManifestHash || currentBackupHash == v1dirManifestHash;
         }
+
         public static void RestoreOriginalDirManifest(bool addForcedFiles)
         {
-            //throw new NotImplementedException("You should make sure this code is correct before calling this properly :p");
-            File.Copy(DirManifestBackupPath, DirManifestPath, true);
-            CurrentDirManifestContent = File.ReadAllText(DirManifestPath);
+            try
+            {
+                File.Copy(DirManifestBackupPath, DirManifestPath, true);
+                CurrentDirManifestContent = File.ReadAllText(DirManifestPath);
 
-            AddForcedFilesToDirManifest();
+                if (addForcedFiles)
+                    AddForcedFilesToDirManifest();
+            }
+            catch (Exception ex)
+            {
+                string err = "Unable to restore the dir.manifest backup. You may need to re-dump if your game crashes in the main menu.";
+                Trace.TraceError(err + "\n" + ex.Message);
+                MessageBox.Show(err + "\nSee manager.log for more.", "Unable to restore backup", MessageBoxButton.OK, MessageBoxImage.Hand);
+            }
         }
         public static void ResetAndAddModsToDirManifest()
         {

@@ -13,7 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace Fable2SMM
+namespace ArchonsToolbox
 {
     /// <summary>
     /// Interaction logic for InstallWindow.xaml
@@ -38,7 +38,7 @@ namespace Fable2SMM
         public static RoutedCommand InstallRunnerCmd = new RoutedCommand();
         private void InstallRunnerCmdExecuted(object sender, ExecutedRoutedEventArgs e)
         {
-            ManagerInstallation.InstallRunner();
+            ManagerInstallation.InstallManager();
         }
 
         public static RoutedCommand UninstallManagerCmd = new RoutedCommand();

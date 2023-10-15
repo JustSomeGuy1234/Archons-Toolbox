@@ -3,20 +3,14 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.ComponentModel;
 using System.IO;
 using System.Collections;
 
-namespace Fable2SMM
+namespace ArchonsToolbox
 {
     public partial class MainWindow : Window
     {
@@ -139,14 +133,23 @@ namespace Fable2SMM
         public static RoutedCommand ManageCmd = new RoutedCommand();
         private void ManagerCmdExecuted(object sender, ExecutedRoutedEventArgs e)
         {
+
             var target = e.Source;
             var arg = e.Parameter as string;
             if (target is ListView listView)
             {
                 IList list = listView.SelectedItems;
                 List<Mod> mods = list.OfType<Mod>().ToList();
+
+                if (!ModManaging.CanInstallMods())
+                {
+                    MessageBox.Show("You cannot currently modify your mods. Check your game installation in the Manage Installation menu.", "Error", MessageBoxButton.OK, MessageBoxImage.Hand);
+                    return;
+                }
+
                 if (mods.Count > 1 && (arg != "invert") && MessageBox.Show($"Are you sure you want to {arg} all selected mods?", "Confirm", MessageBoxButton.YesNoCancel) != MessageBoxResult.Yes)
                     return;
+
                 switch (arg)
                 {
 

@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace Fable2SMM
+namespace ArchonsToolbox
 {
     class ManagerInstallation
     {
@@ -25,14 +25,15 @@ namespace Fable2SMM
                 if (value == "/" || value == "\\" || string.IsNullOrEmpty(value))
                 {
                     _gameFolder = value;
-                    ModManaging.EnumerateAllMods();
+                    ModManaging.ModList.Clear();
+                    Gamescripts.UpdateGamescriptsStatus();
                     OnGameFolderChanged(); // This needs to be called to empty the listview after being reset
                     return;
                 }
                 if (!value.EndsWith(@"\") && !value.EndsWith("/")) value += @"\";
                 if (!Directory.Exists(value))
                 {
-                    MessageBox.Show("Game Path does not exist!", "Folder Not Found", MessageBoxButton.OK, MessageBoxImage.Hand);
+                    MessageBox.Show("Stored game path does not exist!", "Folder Not Found", MessageBoxButton.OK, MessageBoxImage.Hand);
                     return;
                 }
 
@@ -59,9 +60,10 @@ namespace Fable2SMM
 
                 if (File.Exists(Mod.InstalledModsPath))
                 {
-                    LuaParsing.ReadInstalledModsIntoContentAndDict();
-                    ModManaging.EnumerateAllMods();
+                    LuaParsing.ReadInstalledMods();
                 }
+                if (Directory.Exists(ModsFolder))
+                    ModManaging.EnumerateAllMods();
                 if (File.Exists(DirManifest.DirManifestPath))
                 {
                     DirManifest.CurrentDirManifestContent = File.ReadAllText(DirManifest.DirManifestPath);
@@ -141,7 +143,7 @@ namespace Fable2SMM
             }
         }
 
-        public static void InstallRunner()
+        public static void InstallManager()
         {
             // Not hugely proud of this mess. Should probably just have a seperate window for it.
 
@@ -207,6 +209,8 @@ namespace Fable2SMM
 
             Gamescripts.UpdateGamescriptsStatus();
 
+            DirManifest.BackupDirManifest();
+
             // Extract mod manager/runner scripts
             ExtractRunnerScripts();
 
@@ -245,7 +249,7 @@ namespace Fable2SMM
             // TODO: Modify this so that the manager scripts aren't added by the forced file, and are instead added automatically.
             if (File.Exists(DirManifest.DirManifestForcedPath))
             {
-                var result = MessageBox.Show("You have an old dir.forced.manifest file. Would you like to overwrite it? If you're unsure, or are updating and already have it backed up, choose yes." +
+                var result = MessageBox.Show("You have an old dir.forced.manifest file. Would you like to overwrite it? If you're unsure choose yes." +
                     "\n\nIf you have customized it, copy the lines somewhere safe and reinsert them after install." +
                     "\n\nNOTICE: If you're updating you really should as the manager uses the forced file for new manager-related files.", "Overwrite forced dirmanifest?", MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.Yes)
@@ -263,6 +267,7 @@ namespace Fable2SMM
                 return;
             }
             ModManaging.CurrentInstalledModsContent = File.ReadAllText(Mod.InstalledModsPath);
+            
         }
         public static void ExtractRunnerScripts()
         {
@@ -273,14 +278,19 @@ namespace Fable2SMM
                 Trace.TraceError("Error: ScriptsZipPath (or the resources folder) is missing!");
                 return;
             }
+
             ZipArchive modManagerScripts = new ZipArchive(File.OpenRead(ScriptsZipPath));
             foreach (ZipArchiveEntry entry in modManagerScripts.Entries)
             {
 
                 string finalEntryPath = ScriptsFolder + entry.FullName;
                 string finalEntryFolder = Path.GetDirectoryName(finalEntryPath);
+
                 // Todo: We probably shouldn't skip this if we're updating the installedmods layout. Try to migrate old data to new?
-                if (entry.Name == Mod.InstalledModsName && File.Exists(Mod.InstalledModsPath))
+                if (entry.Name == Mod.InstalledModsName 
+                        && File.Exists(Mod.InstalledModsPath)
+                        && MessageBox.Show("Your mod setup must be reset to install the scripts fully.\nYou shouldn't lose any mod data, but you will have to re-enable them.\n\nIs that okay?",
+                            "Reset Mod Setup?", MessageBoxButton.YesNo) != MessageBoxResult.Yes)
                     continue;
 
                 // By the time the iterator gets to folders, we've probably already had files that rely on them existing.
@@ -295,6 +305,8 @@ namespace Fable2SMM
                 entryStream.Read(buffer = new byte[entry.Length], 0, (int)entry.Length);
                 File.WriteAllBytes(finalEntryPath, buffer);
             }
+            LuaParsing.ReadInstalledMods();
+            ModManaging.EnumerateAllMods();
             MessageBox.Show("Updated!");
         }
 
@@ -311,6 +323,7 @@ namespace Fable2SMM
                 return;
             }
 
+            DirManifest.RestoreOriginalDirManifest(false);
 
             if (deleteManagerConfirm == MessageBoxResult.Yes && Directory.Exists(RunnerFolder))
             {
@@ -334,6 +347,7 @@ namespace Fable2SMM
             }
 
             Gamescripts.UpdateGamescriptsStatus();
+            ModManaging.ModList.Clear();
         }
 
         public static void InstallGUIStuff()

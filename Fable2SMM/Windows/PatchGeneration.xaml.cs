@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.IO;
 
-namespace Fable2SMM
+namespace ArchonsToolbox
 {
     // This class won't contain important code so I don't care how poorly written it is
     public partial class PatchGeneration : Window

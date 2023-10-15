@@ -7,7 +7,7 @@ using System.Net;
 using System.Diagnostics;
 using System.Windows;
 
-namespace Fable2SMM
+namespace ArchonsToolbox
 {
     static class Update
     {

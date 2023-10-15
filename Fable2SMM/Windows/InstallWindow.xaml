@@ -1,9 +1,9 @@
-﻿<Window x:Class="Fable2SMM.InstallWindow"
+﻿<Window x:Class="ArchonsToolbox.InstallWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Fable2SMM"
+        xmlns:local="clr-namespace:ArchonsToolbox"
         mc:Ignorable="d" MinHeight="500" MinWidth="400"
         Title="InstallWindow" Height="500" Width="700" Background="{Binding Path=(local:AppSettings.StaticBackgroundColour), Converter={StaticResource WhiteColourConverter}}">
     <Window.CommandBindings>

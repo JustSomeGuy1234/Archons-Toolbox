@@ -12,7 +12,7 @@ using System.Windows;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
 
-namespace Fable2SMM
+namespace ArchonsToolbox
 {
 
     public static class ModManaging
@@ -82,8 +82,19 @@ namespace Fable2SMM
         public static void EnumerateAllMods()
         {
             if (string.IsNullOrEmpty(CurrentInstalledModsContent))
+            {
                 //throw new Exception("CurrentInstalledModsContent variable is empty!");
-                return;
+                Trace.TraceError("CurrentInstalledModsContent was empty while enumerating mods!");
+                MessageBoxResult result = MessageBox.Show("An error has occured when loading your mod configuration! You will probably have to reconfigure your mod setup.\n(Reason: Empty InstalledMods.lua)\n\n" +
+                                                          "Would you like to reset it?", "Error", MessageBoxButton.YesNo, MessageBoxImage.Hand);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    // This should "fix" any errors, and also re-read InstalledMods.
+                    ManagerInstallation.ExtractRunnerScripts();
+                } else
+                    return;
+            }
             if (InstalledModsFileDict == null)
                 throw new Exception("InstalledModsFileDict is null, but CurrentInstalledModsContent is not!");
 
@@ -148,6 +159,18 @@ namespace Fable2SMM
             ModList = new ObservableCollection<Mod>(FinalModList);
             // We now have every mod processed from both lists, let's concat them while making sure there's no duplicates and that they retain their management status'
 
+        }
+
+        public static bool CanInstallMods()
+        {
+            return Gamescripts.CurrentGamescriptsStatus != GamescriptsStatus.MISSING;
+        }
+        public static bool ShowCanInstallModsMessage()
+        {
+            bool CanInstall = CanInstallMods();
+            if (!CanInstall)
+                MessageBox.Show("Before you can install mods you must select your game's folder and patch the game.", "Cannot Install Mods", MessageBoxButton.OK, MessageBoxImage.Hand);
+            return CanInstall;
         }
 
         static void UpdateAllOutOfDateMods()
@@ -241,6 +264,9 @@ namespace Fable2SMM
         }
         public static Mod InstallModFromZip(string zipPath)
         {
+            if (!ShowCanInstallModsMessage())
+                return null;
+
             (Mod zipMod, string manifestContent, var zipFilesDict) = GetModFromZip(zipPath);
             if (zipMod == null)
             {
@@ -297,6 +323,9 @@ namespace Fable2SMM
         }
         public static Mod InstallModFromFolder(string folderPath)
         {
+            if (!ShowCanInstallModsMessage())
+                return null;
+
             (Mod folderMod, string modManContent, Dictionary<string, byte[]> fileDict) = GetModFromFolder(folderPath);
             if (folderMod == null)
                 return null;

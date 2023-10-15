@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 
-namespace Fable2SMM
+namespace ArchonsToolbox
 {
     public class DebugListener : TraceListener
     {
